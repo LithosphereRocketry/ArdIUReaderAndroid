@@ -25,8 +25,9 @@ String pathToCard() {
         print(lines[i]);
         f = new File(lines[i]+s+"flight0.aiu");
         if(f.exists()) {
-          out = f.getAbsolutePath();
+          out = lines[i];
         }
+        println(" "+f.exists());
       }
     } catch(Exception e) {
       e.printStackTrace();

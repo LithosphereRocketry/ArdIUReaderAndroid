@@ -36,11 +36,11 @@ void setup() {
   drv = pathToCard();
   
   if(drv != "none") { // If we found one:
-    println("Found a recognized folder in drive "+drv+"\\, converting flights");
+    println("Found a recognized folder in drive "+drv+s+", converting flights");
     g = new File(drv+s+"ardiu-processed");
     if(!g.exists()) {
       g.mkdir();
-      println("\"Processed\" folder not found, creating new one");
+      println("\"Processed\" folder not found, creating new one at "+g.getAbsolutePath());
     } else {
       println("\"Processed\" folder located");
     }
