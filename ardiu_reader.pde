@@ -28,16 +28,16 @@ int b2i(byte[] from, int offs) {
 } // this one subpixel of the Processing Forum.
 
 String drv = "none";
+final String s = java.io.File.separator;
 File f;
 File g;
 
 void setup() {
-  
   drv = pathToCard();
   
   if(drv != "none") { // If we found one:
-    println("Found a recognized folder in drive "+drv+":\\, converting flights");
-    g = new File(drv+"\\ardiu-processed");
+    println("Found a recognized folder in drive "+drv+"\\, converting flights");
+    g = new File(drv+s+"ardiu-processed");
     if(!g.exists()) {
       g.mkdir();
       println("\"Processed\" folder not found, creating new one");
@@ -45,15 +45,15 @@ void setup() {
       println("\"Processed\" folder located");
     }
     for(int fileNum = 0; fileNum < 100; fileNum++) { // For each possible file number...
-      f = new File(drv+":\\flight"+fileNum+".aiu");
+      f = new File(drv+s+"flight"+fileNum+".aiu");
       if(f.exists()) { // Does it exist?
-        PrintWriter target = createWriter(g.getAbsolutePath()+"\\flight"+fileNum+".csv");
+        PrintWriter target = createWriter(g.getAbsolutePath()+s+"flight"+fileNum+".csv");
         target.print(toCSV(loadBytes(f.getAbsolutePath()))); // If so load it
         
         
         target.flush();
         target.close();
-        println("Processed file "+f.getAbsolutePath()+" to "+g.getAbsolutePath()+"\\flight"+fileNum+".csv");
+        println("Processed file "+f.getAbsolutePath()+" to "+g.getAbsolutePath()+s+"flight"+fileNum+".csv");
       }
     }
   } else { // We didn't find a drive

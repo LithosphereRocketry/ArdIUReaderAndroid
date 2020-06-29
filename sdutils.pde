@@ -1,18 +1,21 @@
 String pathToCard() {
+  final String s = java.io.File.separator;
+  
   String os = System.getProperty("os.name");
-  switch(os) {
-   case "Windows":
+  println(os);
+  if(os.contains("Windows")) {
     char d = 'C';
     do {
       d++;
-      f = new File(d+":\\flight0.aiu");
+      f = new File(d+":"+s+"flight0.aiu");
     } while(d <= 'Z' && !f.exists()); // find the ArdIU drive
     if(d <= 'Z') {
       return d+":";
     } else {
       return "none";
     }
-   case "Linux":
+  } else if(os.contains("Linux")) {
+    String out = "none";
     try {
       InputStream stream = exec("df","--output=target").getInputStream();
       String result = "";
@@ -20,13 +23,16 @@ String pathToCard() {
       String[] lines = result.split("\n");
       for(int i = 1; i < lines.length; i++) {
         print(lines[i]);
-        f = new File(lines[i]+"/flight0.aiu");
-        println(" "+f.exists());
+        f = new File(lines[i]+s+"flight0.aiu");
+        if(f.exists()) {
+          out = f.getAbsolutePath();
+        }
       }
     } catch(Exception e) {
       e.printStackTrace();
     }
-   default:
+    return out;
+  } else {
     return "none";
   }
 }
