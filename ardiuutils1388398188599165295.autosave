@@ -1,4 +1,49 @@
-String toCSV(byte[] file) {
+class DataPoint {
+  int time;
+  float alt;
+  PVector accel;
+  float tilt;
+  boolean[] cont;
+  float voltage;
+  boolean isBaro;
+  boolean isIMU;
+  boolean isSD;
+  boolean liftoff, burnout, apogee;
+  DataPoint() {
+    time = 0;
+    alt = 0;
+    tilt = 0;
+    voltage = 0;
+    accel = new PVector();
+    cont = new boolean[8];
+  }
+  void setAccel(float x, float y, float z) {
+    accel = new PVector(x, y, z);
+  }
+  void read(byte[] data, int version) {
+    
+  }
+  String csv() {
+    String line = "";
+    String contStr = "";
+    for(int i = 0; i < 8; i++) {
+      if(cont[i]) {
+        contStr += 'Y';
+      } else {
+        contStr += 'n';
+      }
+    }
+    String system = "";
+    if(isIMU) { system += 'Y'; } else { system += 'n'; } 
+    if(isSD) { system += 'Y'; } else { system += 'n'; }
+    if(isBaro) { system += 'Y'; } else { system += 'n'; }
+    line += time+","+alt+","+accel.x+","+accel.y+","+accel.z+","+tilt+","+voltage+","+liftoff+","+burnout+","+apogee+","+cont+","+system+"\n";
+    
+    return line;
+  }
+}
+
+String toCSV(byte[] file, DataPoint[] flight) {
   String out = "";
   
   int fileVersion = b2i(file, 0); // check the version header
@@ -6,6 +51,7 @@ String toCSV(byte[] file) {
    case 3:
     out += "Time (ms),Altitude (m),Acceleration X (G),Acceleration Y (G),Acceleration Z (G),Tilt (rad),Battery voltage (V),Liftoff,Burnout,Apogee,Continuity,IMU/SD/Baro\n";
     for(int filePos = 4; filePos < file.length-27; filePos += 28) {
+      DataPoint frame = new DataPoint();
       int time = b2i(file, filePos); // read the time
       int state = b2i(file, filePos+4);
       float voltage = (state & 255) / 16.0;
@@ -43,6 +89,8 @@ String toCSV(byte[] file) {
       byte[] tiltBytes = new byte[4]; // read the acceleration
       arrayCopy(file, filePos+24, tiltBytes, 0, 4);
       float tilt = byteArrayToFloat(tiltBytes);
+      
+  //    flight = (DataPoint[]) append(flight, frame);
       out += time+","+alt+","+accX+","+accY+","+accZ+","+tilt+","+voltage+","+liftoff+","+burnout+","+apogee+","+cont+","+system+"\n"; // write it all to the file
     }
     break;
