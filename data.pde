@@ -76,6 +76,7 @@ Table logFromSource(byte[] source) {
       arrayCopy(source, filePos+24, tiltBytes, 0, 4);
       float tilt = byteArrayToFloat(tiltBytes);
       row.setFloat("Tilt", tilt);
+  //    println(tilt);
     }
     break;
    case 2:

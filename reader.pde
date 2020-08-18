@@ -7,6 +7,7 @@ File g;
 Table[] charts = new Table[100];
 
 void load() {
+  frameRate(1000);
   textAlign(CENTER, CENTER);
   units = new Table();
   TableRow names = units.addRow();
@@ -22,6 +23,8 @@ void load() {
   names.setString("Acceleration Z", "g");
   units.addColumn("Tilt");
   names.setString("Tilt", "rad");
+  units.addColumn("Battery Voltage");
+  names.setString("Battery Voltage", "V");
   
   drv = pathToCard();
   
@@ -49,13 +52,12 @@ void load() {
 
 boolean loaded;
 int fileNum;
-String columnName = "Acceleration Y";
+String columnName = "Altitude";
 void draw() {
   background(255);
   fill(0);
   if(drv != "none") {
     if(!loaded) {
-      frameRate(10000);
       text("Loading...", width/2, height/2);
       fill(255, 0, 0);
       rect(0, height*.9, width*fileNum/100, height*.1);
@@ -73,18 +75,19 @@ void draw() {
       }
       fileNum++;
       if(fileNum > 99) {
+        frameRate(60);
         fileNum = 0;
         loaded = true;
 //        logToGraph(flights[fileNum], "Time", "Altitude");
       }
     } else {
-      frameRate(60);
       text("flight"+fileNum+".aiu\n"+columnName, width/2, height/10);
    //   println(graphs[fileNum].getYData());
       XYChart graph = logToGraph(charts[fileNum], "Time", columnName);
       graph.showXAxis(true);
       graph.showYAxis(true);
       graph.setLineWidth(2);
+      //println(graph);
       graph.draw(10, 10, (width - (width-height)/2)-20, height-20);
       fill(200);
       triangle(width-(width-height)*1/4, height*1/12,
@@ -103,5 +106,41 @@ void draw() {
   } else {
     fill(0);
     text("No files detected", width/2, height/2);
+  }
+}
+
+void mousePressed() {
+  if(loaded && mouseX > width-(width-height)/2) {
+    if(mouseY > height*2/3) {
+      do {
+        fileNum ++; fileNum %= 100;
+        columnName = "Altitude";
+      } while(charts[fileNum] == null);
+    } else if(mouseY < height*1/3) {
+      do {
+        fileNum += 99; fileNum %= 100;
+        columnName = "Altitude";
+      } while(charts[fileNum] == null);
+    } else {
+      //println((Object[]) flights[fileNum].getColumnTitles());
+      String[] columns = new String[0];
+      for(String title :  charts[fileNum].getColumnTitles()) {
+        boolean okTitle = false;
+        for(String test : units.getColumnTitles()) {
+          if(title.equals(test)) {
+            okTitle = true;
+            break;
+          }
+        }
+        if(okTitle) {
+          columns = append(columns, title);
+        }
+      }
+      //println((Object[]) columns);
+      int index = units.getColumnIndex(columnName);
+      int newIndex = (index % (columns.length-1)) + 1; // wrap the last column back to the first, then shift right by 1 so we never see the 1st column (time)
+      columnName = columns[newIndex];
+      println(columnName);
+    }
   }
 }
